@@ -154,3 +154,50 @@ def get_latest_data(df1):
    ```
 Again, this is the same template as the other helpers, but in this case, the filter takes the raw dataframe, sorts by release_date, groups by report_date, and pulls the newest entry in the grouped list. As new releases are added, this function makes sure the newest data is used. Simple and effective and allows us to easily feed a clean dataframe into the period_change function.
 
+## Categories
+### As soon as I added the category field, I knew I wanted to use it. I still wasn’t sure how specifically, but I did need a means of getting all relevant data from a category and not a report.
+
+Unlike the other helper functions that build upon each other, this function would have to work on the main data frame. That didn’t thrill me, but it’s the way it has to be.
+
+```python3
+def get_category_data_from_fed_data(df1, report_name, report_date):
+    df = df1.copy()
+    master_list = df["report_name"].unique()
+    master_list = pd.DataFrame(master_list, columns=["report_name"])
+    master_list = add_report_long_names(master_list)
+    filtered_list = master_list[master_list["report_name"] == report_name]
+    filtered_list = master_list[
+        master_list["category"] == filtered_list.category.iloc[0]
+    ]
+
+    df_out = pd.DataFrame()
+    for index, row in filtered_list.iterrows():
+        temp_df = get_report_from_fed_data(df, row.report_name)
+        temp_df = get_report_after_date_fed_data(temp_df, report_date)
+        temp_df = get_latest_data(temp_df)
+        temp_df = period_change(temp_df)
+        temp_df = add_report_long_names(temp_df)
+        df_out = df_out.append(
+            temp_df,
+            ignore_index=True,
+        )
+
+    df_out["period_change"] = df_out["period_change"].fillna(0)
+
+    return df_out
+ ```
+This took a little bit of processing gymnastics, so I’ll step through it.
+
+For inputs, we take the master dataframe along with a specific target report to use as a base to determine category. We also pass in the report_date as a starting point to limit our scope.
+
+Like the other helpers, we create a copy to work on. Again, let’s avoid those warnings.
+
+Our first step is to create a unique list of the reports, which is then converted from an array back to a dataframe. This allows us to feed that list of reports into the add_report_long_names function to give us the long names and categories for each.
+
+We then create a filtered list of just the report name we’re interested in. Ideally, this should only be one row, but I was a bit paranoid so I assumed there might be a condition where more than one row existed. That explains the second level filter to just get the first row’s category.
+
+Finally, we create an empty data frame to hold our results and loop through the rows of the filtered_list against the main dataframe. This loop shows the waterfall filtering in action. For each row, we get the matching report, we then filter the result to get just the dates after the start date, we then take that result and pull just the latest data, we take that result and add the period change fields, then we run that result through the add_report_long_names function to add additional descriptors. At the bottom of the waterfall, we take the result and add it to the output dataframe.
+
+This leaves us with a clean set of report data matching on the category descriptor.
+
+And that’s the data processing portion of our program. We are now ready to put this data to use.
