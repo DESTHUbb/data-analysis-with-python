@@ -225,6 +225,9 @@ Here is how I set up my layout:
 
 ![image](https://user-images.githubusercontent.com/90658763/185746695-9937e6ed-d808-499b-9f29-9404d14bf128.png)
 
+### Row 6: Header
+### Row 7: Surface Charts on Category comparison for change from last value and from baseline start.
 
+![image](https://user-images.githubusercontent.com/90658763/185746724-f3145408-d62e-4f85-9275-fc15244e0275.png)
 
 
