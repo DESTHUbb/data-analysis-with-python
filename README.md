@@ -471,5 +471,5 @@ Because we went through the trouble of defining our logic functionally upfront, 
 
 Probably the coolest chart type becomes one of the easiest to actually implement.
 
-# [Theory page information](https://www.patreon.com/sigmacoding).
+# [Theory page information](https://towardsdatascience.com/data-analysis-from-data-to-dashboard-with-python-dash-and-plotly-cee4367708ab).
 
