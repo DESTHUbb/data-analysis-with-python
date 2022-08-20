@@ -46,7 +46,7 @@ layout_configs.py — this is a container file to organize various layouts and v
 For these initial steps, we will concern ourselves with the support_functions.py file.
 
 We have a basic understanding of the format of our data, so our first task is to get it into the system in a manner that we can readily work with. For this, we read the whole data file into a Pandas dataframe.
-
+```python3```
 # Base retrieval function - reads from CSV
 
 ```python3
@@ -63,7 +63,44 @@ def get_fed_data():
     df["release_date"] = df["release_date"].values.astype("datetime64[D]")
 
     return df
+```
 
+This function is pretty straightforward. We pull the configurable base_path variable (not shown) into a format for file_path, which is fed into the read_csv pandas function to create dataframe “df”. From there, we simply rename some columns for consistency and ensure data types are correct for the dates. Then we return the processed data frame.
 
+All simple so far.
 
+However, we can’t just plunk this raw dataframe into a chart and let the magic algorithms do their thing. We need to think about what we need to do with that data individually.
+
+Here lies a challenge with a project like this. No one gave me a spec sheet or instructions for what I needed to get out of it. I had to figure it out myself. The horror…
+
+## Processing
+
+### When faced with ambiguous requirements, you often have to think in generic terms. That’s where I started this stage.
+
+I knew I would need to extract the data based on various criteria and formats, so I began creating some helper functions that could be called individually or as part of a larger process to filter and refine.
+
+I won’t go through all of them, but this is the general template:
+
+### function to pull specific report
+
+```python3
+def get_report_from_fed_data(df1, report_name):
+    df = df1.copy()
+    df = df[df["report_name"] == report_name]
+    df.sort_values(by=["report_date"], inplace=True)
+    df.reset_index(drop=True, inplace=True)
+    return df
+ ```
+    
+This specific function is defined to pull all rows of an input dataframe based on a report name that is passed in.
+
+I first begin by making a copy of the dataframe. I do this because if you modify data within a dataframe slice, you will get warnings from pandas. I HATE warnings like that.
+
+The next line simply does the filter on the copy of the passed-in dataframe. This line is mostly what changes from helper function to helper function through this section of code.
+
+I finally sort the resulting data frame appropriately and logically based on what the function is designed to do and then reset the index. The last step is so that the returned dataframe has a consistent index that only encompasses that rows returned.
+
+I have helper functions for filtering to an exact report_date or a report_date greater than or equal to a passed in date as well as similar functions for release_date. All in all, these cover most of the conditions I could see being used to create charts.
+
+Taking the time now to plan out what is possibly needed is ultimately much more efficient than trying to do it on the fly. Thinking about the underlying data and anticipating use cases provides a better contextual understanding and can often save time down the road.
 
