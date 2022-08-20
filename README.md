@@ -201,3 +201,20 @@ Finally, we create an empty data frame to hold our results and loop through the 
 This leaves us with a clean set of report data matching on the category descriptor.
 
 And that’s the data processing portion of our program. We are now ready to put this data to use.
+
+## Dashboard
+### Like my commodities report dashboard, I started with a clean slate. I won’t belabor the discussion on that here, but if interested check out the article linked in the introduction.
+
+After much debate and determining what I really wanted to see displayed on a regular basis, I settled on a pretty simple arrangement and design.
+
+The layout is a basic grid as provided by the dash-bootstrap-components module with the CYBORG bootstrap theme applied. I like dark colors for my dashboards.
+
+Note that in order to get my charts to match, I used the plotly template.default setting of “plotly_dark”.
+
+Here is how I set up my layout:
+
+### Row 1: Header and title.
+### Row 2: Report Selector with Start Date selector.
+### Row 3: Information bar showing latest report date, latest release date, and latest data value.
+### Row 4: Raw Data scatter chart.
+
