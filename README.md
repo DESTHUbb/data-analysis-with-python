@@ -104,3 +104,51 @@ I have helper functions for filtering to an exact report_date or a report_date g
 
 Taking the time now to plan out what is possibly needed is ultimately much more efficient than trying to do it on the fly. Thinking about the underlying data and anticipating use cases provides a better contextual understanding and can often save time down the road.
 
+## Data Labelling
+
+### As I began to think more about my end results, I realized I had an annoying gap that I should fix. It goes back to that pesky report_name value and the cryptic nature of it.
+
+To be more user friendly, I should provide a long name that can be referenced. So, I created another function. This is abbreviated here just for sake of brevity, but the core is intact:
+
+```python3
+def add_report_long_names(df1):
+    df = df1.copy()
+        if df.loc[index, "report_name"] == "AMDMUO":
+            df.loc[
+                index, "report_long_name"
+            ] = "Manufacturers Unfilled Orders: Durable Goods"
+            df.loc[index, "category"] = "Production"
+            return df
+  ```
+  
+The snippet code above relates to the header image I provided on the data. In this, I simply examine the report_name filed and if it is equal to “AMDMUO” I set a report_long_name value equal to “Manufacturers Unfilled Orders: Durable Goods”. I also take the opportunity to put in a category of “Production”.
+
+## Normalization
+### Something that is not usually obvious to new analysts working with this type of data is figuring out a method for direct comparison between two wildly different values. How do we normalize that so we can plot a comparison directly on a chart and have it make sense?
+
+A practical way to describe it is how do you plot comparative performance of something like Amazon and Walmart on a chart using stock data? The easiest method is to define the comparison based on rates of change.
+
+The same process works here. And, I do it quite often with type of data.
+
+Luckily, pandas makes short work of it:
+
+```python3
+def period_change(df):
+    df["period_change"] = df.report_data.pct_change()
+    df["relative_change"] = 1 - df.iloc[0].report_data / df.report_data
+    return df
+```
+This function is designed to sit at the end of a filtering chain. It expects that the dataframe fed in will be a distinct report, filtered to a single date and ordered by that date.
+
+The function adds two fields, one for the period change, which is the rate of change from the prior row. The other is the baseline change, which is the percent change from the first row of the dataframe.
+
+But, for this to work, we need that absolute unique, last value:
+
+def get_latest_data(df1):
+    df = df1.copy()
+    df = df.sort_values("release_date").groupby("report_date").tail(1)
+    df.sort_values(by=["report_date"], inplace=True)
+    df.reset_index(drop=True, inplace=True)
+    return df
+Again, this is the same template as the other helpers, but in this case, the filter takes the raw dataframe, sorts by release_date, groups by report_date, and pulls the newest entry in the grouped list. As new releases are added, this function makes sure the newest data is used. Simple and effective and allows us to easily feed a clean dataframe into the period_change function.
+
