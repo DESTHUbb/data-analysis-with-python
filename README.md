@@ -470,3 +470,6 @@ def category_baseline_report(report, init_date):
 Because we went through the trouble of defining our logic functionally upfront, this complex chart comes down to effectively just one line aside from the boilerplate.
 
 Probably the coolest chart type becomes one of the easiest to actually implement.
+
+# [Theory page information](https://www.patreon.com/sigmacoding).:
+
