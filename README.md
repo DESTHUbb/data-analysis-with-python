@@ -236,4 +236,106 @@ This gives me a total of five charts. Let’s build those.
 
 ![image](https://user-images.githubusercontent.com/90658763/185746751-ecc5c0f1-6911-4497-8663-703d069d6fbf.png)
 
+## The value of this chart to me is that it allows me to not only see the trend based on report_date, but also shows the revision history based on release_date. The image above is Consumer Price Index, which does not have significant revisions, but other charts have major value revisions, which is interesting.
 
+### Because this is a scatter chart, I applied the built in LOWESS regression line to get a general idea of linear trend. Also on this chart is the side color bar, which allows color on the chart to be used as a cue on the age of the data point.
+
+Using plotly express, this is a simple chart to construct:
+
+```python3
+def basic_chart(df, long_name):
+    df["release_int"] = (df.release_date - pd.Timestamp("1970-01-01")) // pd.Timedelta(
+        "1s"
+    )
+
+    fig = px.scatter(
+        df,
+        x="report_date",
+        y="report_data",
+        trendline="lowess",
+        color="release_int",
+        color_continuous_scale=px.colors.sequential.YlOrRd_r,
+        hover_name="report_long_name",
+        hover_data={
+            "release_int": False,
+            "release_date": "| %b %d, %Y",
+            "category": True,
+        },
+    )
+
+    fig.update_layout(
+        newshape=dict(line_color="yellow"),
+        title=(long_name + " Raw Data"),
+        xaxis_title="",
+        yaxis_title="",
+        coloraxis_colorbar=dict(
+            title="Release Date<br> -",
+            thicknessmode="pixels",
+            thickness=50,
+            tickmode="array",
+            tickvals=df.release_int,
+            ticktext=df.release_date.dt.strftime("%m/%d/%Y"),
+            ticks="inside",
+        ),
+    )
+    # fig.show()
+    return fig
+   ```
+The major function needing to be performed is adding a column for the color bar. Plotly requires color data to be a numeric format. Since I am trying to apply it based on the release_date, it’s just using the built-in pandas time functions to convert the date field to the unix time. Now we have a reference column to define the color bar and markers.
+
+After that, the format of the chart itself is almost completely stock. The hurdles I faced was in modifying the colorbar to use the date for the labels vs. using the integer values. This is laid out in the ticktext line in the update_layout function.
+
+Note, since I define most of my charts as functions to be called by callbacks, I leave the fig.show() line commented in the code. This allows me to troubleshoot and design without having the overhead of the entire Dash app. Running it is as simple as adding a function call at the bottom of the file and running the file.
+
+Because of our earlier work, the callback is similarly easy to decipher.
+
+```python3
+@app.callback(
+    dash.dependencies.Output("basic-chart", "figure"),
+    [
+        dash.dependencies.Input("report", "value"),
+        dash.dependencies.Input("start-date", "date"),
+    ],
+)
+def basic_report(report, init_date):
+    # set the date from the picker
+    if init_date is not None:
+        date_object = date.fromisoformat(init_date)
+        date_string = date_object.strftime("%Y-%m-%d")
+
+    # Filter to the report level
+    df = sf.get_report_from_fed_data(bl.fed_df, report)
+    df1 = sf.get_report_after_date_fed_data(df, date_string)
+    # Filter again to the release
+    df2 = sf.get_release_after_date_fed_data(df1, date_string)
+
+    # Assign long names
+    df2 = sf.add_report_long_names(df2)
+    long_name = df2.report_long_name.iloc[0]
+
+    fig = sf.basic_chart(df2, long_name)
+    return fig
+ ```
+For input, the app sends the report name and the start date to the callback function. Now we take those values and feed them into the body of the callback function.
+
+The first if statement ensures the date is not empty, which it never should be and formats it into a string that we can use in our helper functions.
+
+The function then calls the get_report function feeding in the main dataframe, it filters it in to get the relevant dates, then filters to get releases after the start date. Finally, it adds the long names since those are used in the title of the chart and grabs one for a variable to be fed into the basic_chart function shown above.
+
+The function creates the chart and returns it as a figure object to the basic-chart id that is held in row 4 of the application.
+
+```python3
+basic_data = dbc.Row(
+    [
+        dbc.Col(
+            dcc.Graph(
+                id="basic-chart",
+                style={"height": "70vh"},
+                config=lc.tool_config,
+            ),
+            md=12,
+        ),
+    ]
+)
+```
+Of course, this is the basic row layout. Here we can see the config parameter references the layout_config.py file and applies the tool_config parameters to add the drawing tools I like. The value “md-12” is the configuration for the theme in bootstrap that sets the chart to take up the whole row.
