@@ -373,3 +373,100 @@ However, this chart type gives an additional example, so it works out well.
 This, like the other chart type, is almost perfectly text book. The major diversions here are the application of styles from the layout_configs file, the addition of a horizontal line, and the filltozeroy parameter.
 
 In the Main.py file, the callback does similar chained filtering to get to the correct final dataframe. Since the data is only using distinct most recent dates, one more helper function is used.
+
+## Surface Charts
+## Over the past few months, I have come to love surface charts for some things. I discovered that while line charts over a longer period can show change adequately, seeing it laid out as a topographical surface in 3d reinforces not only the change, but the interplay between distinct categories.
+
+The downside is that these charts required a bit of pondering to work out. If I were designing a one-off or with defined data that’s nicely packaged, the chart can be built easily. That’s the situation I found while adding a surface chart to my commodities report data. Here, we have a different situation.
+
+The surface charts are designed to compare the relative movements of n+1 reports within a category. That makes creating a flexible template a bit more interesting.
+
+If you’ve stuck with this article for this long, here’s one of the big payoffs. I have not seen this covered elsewhere in my internet journey.
+
+Like the other examples, we’ll define a function to generate a chart based off the processed dataframe:
+
+```python3
+def category_chart_baseline(df1, report_name, report_date):
+    df = get_category_data_from_fed_data(df1, report_name, report_date)
+
+    x_data = df["report_date"].unique()
+    y_data = df["report_long_name"].unique()
+    z_data = []
+    for i in y_data:
+        z_data.append(df[df["report_long_name"] == i]["relative_change"] * 100)
+
+    fig = go.Figure(
+        go.Surface(
+            contours={
+                "z": {
+                    "show": True,
+                    "start": -0.01,
+                    "end": 0.01,
+                    "size": 0.05,
+                    "width": 1,
+                    "color": "black",
+                },
+            },
+            x=x_data,
+            y=y_data,
+            z=z_data,
+        )
+    )
+
+    category = df.category.iloc[0]
+    begin_date = np.datetime_as_string(x_data.min(), unit="D")
+    end_date = np.datetime_as_string(x_data.max(), unit="D")
+
+    fig.update_layout(
+        title=category
+        + " Report Baseline Comparison (% Change): <br>"
+        + begin_date
+        + " - "
+        + end_date,
+        scene={
+            "xaxis_title": "",
+            "yaxis_title": "",
+            "zaxis_title": "",
+            "camera_eye": {"x": 1, "y": -1, "z": 0.75},
+            "aspectratio": {"x": 0.75, "y": 0.75, "z": 0.5},
+        },
+        margin=dict(
+            b=10,
+            l=10,
+            r=10,
+        ),
+    )
+    # fig.show()
+    return fig
+  ```
+Because we’re using the get_category_data function, the data frame passed in has to be the master dataframe. But, along with that, we also pass in the report and the start date — both provided from the callback as determined by the application. That makes the first part simple.
+
+Next, we generate an array of unique dates for our x-axis and a unique list of reports using the long_report_name for our y-axis. For our z-axis, we loop over the data frame by long report name and feed the report_data values into an array of arrays of percentage values.
+
+Since everything maintains the same sort order, the Y and Z axes will align.
+
+The rest of the function is just setting up the layout and defining the aspects and camera angles by preference. There’s also setting up the title section variables as well, but by now those should be pretty obvious and old hat.
+
+And remember I said the callback was simple?
+
+```python3
+# Period Chart
+@app.callback(
+    dash.dependencies.Output("category-baseline-chart", "figure"),
+    [
+        dash.dependencies.Input("report", "value"),
+        dash.dependencies.Input("start-date", "date"),
+    ],
+)
+def category_baseline_report(report, init_date):
+    if init_date is not None:
+        date_object = date.fromisoformat(init_date)
+        date_string = date_object.strftime("%Y-%m-%d")
+
+    fig = sf.category_chart_baseline(bl.fed_df, report, date_string)
+
+    return fig
+  ```
+Because we went through the trouble of defining our logic functionally upfront, this complex chart comes down to effectively just one line aside from the boilerplate.
+
+Probably the coolest chart type becomes one of the easiest to actually implement.
