@@ -221,4 +221,10 @@ Here is how I set up my layout:
 
 ![image](https://user-images.githubusercontent.com/90658763/185746673-127c02ff-2d56-4e49-90b5-429a4c5bb820.png)
 
+### Row 5: Line charts on periodic changes from last value and from the baseline start date.
+
+![image](https://user-images.githubusercontent.com/90658763/185746695-9937e6ed-d808-499b-9f29-9404d14bf128.png)
+
+
+
 
