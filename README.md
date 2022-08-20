@@ -5,7 +5,7 @@
 
 ![dataanalysis](https://user-images.githubusercontent.com/90658763/185744892-02539409-90fc-4327-b021-e7589ef79bd4.gif)
 
-
+# Theory
 ## Expectations
 
 ### If you’re reading through this top to bottom, here is what you can expect to get out of this article:
@@ -471,5 +471,5 @@ Because we went through the trouble of defining our logic functionally upfront, 
 
 Probably the coolest chart type becomes one of the easiest to actually implement.
 
-# [Theory page information](https://www.patreon.com/sigmacoding).:
+# [Theory page information](https://www.patreon.com/sigmacoding).
 
