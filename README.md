@@ -339,3 +339,37 @@ basic_data = dbc.Row(
 )
 ```
 Of course, this is the basic row layout. Here we can see the config parameter references the layout_config.py file and applies the tool_config parameters to add the drawing tools I like. The value “md-12” is the configuration for the theme in bootstrap that sets the chart to take up the whole row.
+
+## Periodic Charts
+### The periodic charts are essentially similar to each other and are called in similar fashion to the basic scatter. I won’t spend a lot of time on them here, but as always, if you have questions — please reach out.
+
+```python3
+def baseline_change_chart(df, long_name):
+    fig = go.Figure(layout=lc.layout)
+    fig.add_traces(
+        go.Scatter(
+            x=df.report_date,
+            y=df.relative_change,
+            name="Baseline",
+            line_width=2,
+            fill="tozeroy",
+        )
+    )
+
+    fig.add_hline(y=0, line_color="white")
+    fig.update_layout(
+        newshape=dict(line_color="yellow"),
+        title=(long_name + " Change from Baseline"),
+        xaxis_title="",
+        yaxis_title="",
+    )
+    # fig.show()
+    return fig
+ ```
+Above is the code for the baseline chart and is constructed with the plotly go.Figure methods. I opted for this over the plotly express functions because even at this stage I wasn’t completely certain how I wanted to construct my charts.
+
+However, this chart type gives an additional example, so it works out well.
+
+This, like the other chart type, is almost perfectly text book. The major diversions here are the application of styles from the layout_configs file, the addition of a horizontal line, and the filltozeroy parameter.
+
+In the Main.py file, the callback does similar chained filtering to get to the correct final dataframe. Since the data is only using distinct most recent dates, one more helper function is used.
