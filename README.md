@@ -144,11 +144,13 @@ The function adds two fields, one for the period change, which is the rate of ch
 
 But, for this to work, we need that absolute unique, last value:
 
+```python3
 def get_latest_data(df1):
     df = df1.copy()
     df = df.sort_values("release_date").groupby("report_date").tail(1)
     df.sort_values(by=["report_date"], inplace=True)
     df.reset_index(drop=True, inplace=True)
     return df
+   ```
 Again, this is the same template as the other helpers, but in this case, the filter takes the raw dataframe, sorts by release_date, groups by report_date, and pulls the newest entry in the grouped list. As new releases are added, this function makes sure the newest data is used. Simple and effective and allows us to easily feed a clean dataframe into the period_change function.
 
