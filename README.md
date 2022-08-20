@@ -230,4 +230,10 @@ Here is how I set up my layout:
 
 ![image](https://user-images.githubusercontent.com/90658763/185746724-f3145408-d62e-4f85-9275-fc15244e0275.png)
 
+This gives me a total of five charts. Let’s build those.
+
+## Raw Data Scatter Chart
+
+![image](https://user-images.githubusercontent.com/90658763/185746751-ecc5c0f1-6911-4497-8663-703d069d6fbf.png)
+
 
