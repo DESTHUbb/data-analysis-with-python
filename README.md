@@ -216,5 +216,9 @@ Here is how I set up my layout:
 ### Row 1: Header and title.
 ### Row 2: Report Selector with Start Date selector.
 ### Row 3: Information bar showing latest report date, latest release date, and latest data value.
+
 ### Row 4: Raw Data scatter chart.
+
+![image](https://user-images.githubusercontent.com/90658763/185746673-127c02ff-2d56-4e49-90b5-429a4c5bb820.png)
+
 
